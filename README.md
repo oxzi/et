@@ -1,22 +1,24 @@
 # *et*, egg timer
 
 ## What?
-A simple *(egg)* timer based on
-[libnotify](https://developer.gnome.org/libnotify/) for GNU/Linux.
+A minimal *(egg)* timer based on
+[libnotify](https://developer.gnome.org/libnotify/) for
+[GNU/Linux](https://www.gnu.org/gnu/linux-and-gnu.en.html).
 
 ## Screenshot?
 ![et screenshot](example.jpg)
 
-The [Dunst-notification daemon](http://www.knopwob.org/dunst/) running on
-[dwm](http://dwm.suckless.org/).
+You're seeing the [Dunst-notification daemon](http://www.knopwob.org/dunst/)
+running on [dwm](http://dwm.suckless.org/).
 
 ## How?
-To start an **et** just fire a command.
+To start an **et**, just fire a command.
 ```bash
 $ et 90 # Reminds you in 90 seconds
 $ et 1:30 # Also reminds you in 90 seconds
 $ et 1:30:00 # Reminds you in 90 minutes
 $ et 10:00 Pizza # Reminds you in 10 minutes and says Pizza
+$ et 23:00 "Check rice" # Reminder with a longer text
 ```
 
 To get the current status, send a `SIGUSR1`-signal to the process.
@@ -26,6 +28,7 @@ $ et 120
 Egg timer started!
 Name: eggtimer, PID: 4242
 Only 30 seconds remaining
+
 $ kill -SIGUSR1 4242
 01 minutes and 28 seconds remaining
 ```
@@ -37,8 +40,8 @@ Perhaps you want to set up some keybindings in your WM for a
 flawless experience.
 
 ## Build?
-Just execute `make` and you've got a binary. If you're on
+Just run `make` and you've got a binary. If you're on
 [NixOS](https://nixos.org/), check out `make nix`.
 
 ## License?
-GNU General Public License in the third version.
+[GNU General Public License](https://rms.sexy/) in the third version.

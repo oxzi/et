@@ -55,11 +55,15 @@ struct itimerval create_itimerval(unsigned int sec) {
 }
 
 /* Function to show a notification. */
-void show_notification(char *msg) {
+void show_notification(char *msg, NotifyUrgency urgency) {
   NotifyNotification *noti;
 
-  noti = notify_notification_new(instance_name, msg, "dialog-information");
-  notify_notification_show(noti, NULL);
+  noti = notify_notification_new(instance_name, msg, NULL);
+  notify_notification_set_urgency(noti, urgency);
+  if(!notify_notification_show(noti, NULL))
+    printf("Failed to show a NotifyNotification!\n");
+
+  g_object_unref(G_OBJECT(noti));
 }
 
 /* Writes a human-readable timestamp into msg. */
@@ -100,7 +104,7 @@ void status_request_worker() {
   create_text_timestamp(msg, 96, timer.it_value.tv_sec);
 
   printf("%s\n", msg);
-  show_notification(msg);
+  show_notification(msg, NOTIFY_URGENCY_NORMAL);
 
   free(msg);
 }
@@ -128,7 +132,7 @@ int main(int argc, char *argv[]) {
   unsigned int sec;
   char *start_msg;
 
-  if(!notify_init("et"))
+  if(!notify_init("et") || !notify_is_initted())
     DIE("Could not initialize libnotify.\n");
 
   if(argc < 2 || argc > 3)
@@ -176,12 +180,12 @@ int main(int argc, char *argv[]) {
       status_state = false;
     }
     if(kill_state) {
-      show_notification("Timer was killed!");
+      show_notification("Timer was killed!", NOTIFY_URGENCY_NORMAL);
       DIE("Timer was killed!");
     }
   } while(timer_state);
 
-  show_notification("Time's up!");
+  show_notification("Time is up!", NOTIFY_URGENCY_CRITICAL);
 
   notify_uninit();
 
