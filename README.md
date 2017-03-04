@@ -1,12 +1,13 @@
 # *et*, egg timer
 
 ## What?
-A simple (egg) timer for a GNU/Linux-operating system based
-on [libnotify](https://developer.gnome.org/libnotify/).
+A simple *(egg)* timer based on
+[libnotify](https://developer.gnome.org/libnotify/) for GNU/Linux.
 
 ## Screenshot?
 ![et screenshot](example.jpg)
-The [Dunst-notification server](http://www.knopwob.org/dunst/) running on
+
+The [Dunst-notification daemon](http://www.knopwob.org/dunst/) running on
 [dwm](http://dwm.suckless.org/).
 
 ## How?
@@ -21,11 +22,12 @@ $ et 10:00 Pizza # Reminds you in 10 minutes and says Pizza
 To get the current status, send a `SIGUSR1`-signal to the process.
 Don't worry, it won't stop.
 ```bash
-$ et 30
+$ et 120
 Egg timer started!
 Name: eggtimer, PID: 4242
 Only 30 seconds remaining
 $ kill -SIGUSR1 4242
+01 minutes and 28 seconds remaining
 ```
 
 You can also get the status of all **et**-instances by running
