@@ -169,6 +169,7 @@ int main(int argc, char *argv[]) {
   create_text_timestamp(start_msg, 96, timer.it_value.tv_sec);
   printf("Egg timer started!\nName: %s, PID: %d\n%s\n",
     instance_name, getpid(), start_msg);
+  show_notification("Timer started", NOTIFY_URGENCY_LOW);
 
   do {
     /* Pause until next signal comes by… */
