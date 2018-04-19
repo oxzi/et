@@ -3,7 +3,7 @@
 ## What?
 A minimal *(egg)* timer based on
 [libnotify](https://developer.gnome.org/libnotify/) for
-[GNU/Linux](https://www.gnu.org/gnu/linux-and-gnu.en.html).
+[GNU/Linux](https://rms.sexy/).
 
 ## Screenshot?
 ![et screenshot](example.jpg)
@@ -41,7 +41,8 @@ flawless experience.
 
 ## Build?
 Just run `make` and you've got a binary. If you're on
-[NixOS](https://nixos.org/), check out `make nix`.
+[NixOS](https://nixos.org/) try `nix-build` or install the `et` package from
+the [nixpkgs](https://github.com/NixOS/nixpkgs).
 
 ## License?
-[GNU General Public License](https://rms.sexy/) in the third version.
+🐃 GNU General Public License, Version 3
