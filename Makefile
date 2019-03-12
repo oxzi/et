@@ -6,8 +6,8 @@ OBJ     = $(SRC:.c=.o)
 OUTPUT  = et
 
 default:
-	$(CC) $(CFLAGS) -c $(SRC)
-	$(CC) $(CFLAGS) -o $(OUTPUT) $(OBJ)
+	$(CC) -c $(SRC) $(CFLAGS)
+	$(CC) -o $(OUTPUT) $(OBJ) $(CFLAGS)
 
 clean:
 	$(RM) $(OUTPUT) $(OBJ)
