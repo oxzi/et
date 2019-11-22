@@ -1,0 +1,33 @@
+name: Test building et
+
+on: [push, pull_request]
+
+jobs:
+  build_nix_ubuntu:
+    name: Build with Nix on an Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: cachix/install-nix-action@v6
+    - run: nix-build
+
+  build_nix_macos:
+    name: Build with Nix on a macOS
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: cachix/install-nix-action@v6
+    - run: nix-build
+
+  build_ubuntu:
+    name: Build directly on an Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libnotify-dev
+    - run: make
