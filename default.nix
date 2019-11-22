@@ -1,12 +1,12 @@
-{ pkgs ? import <nixpkgs> {} }:
+with import <nixpkgs> {};
 
-pkgs.stdenv.mkDerivation rec {
+stdenv.mkDerivation rec {
   name = "et";
 
-  src = ./.;
+  src = lib.cleanSource ./.;
 
-  buildInputs = with pkgs; [ libnotify gdk_pixbuf ];
-  nativeBuildInputs = [ pkgs.pkgconfig ];
+  buildInputs = [ libnotify gdk_pixbuf ];
+  nativeBuildInputs = [ pkgconfig ];
 
   installPhase = ''
     mkdir -p $out/bin

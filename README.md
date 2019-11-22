@@ -1,18 +1,23 @@
 # *et*, egg timer
 
 ## What?
+
 A minimal *(egg)* timer based on
-[libnotify](https://developer.gnome.org/libnotify/) for
-[GNU/Linux](https://rms.sexy/).
+[libnotify](https://developer.gnome.org/libnotify/).
+
 
 ## Screenshot?
+
 ![et screenshot](example.jpg)
 
 You're seeing the [Dunst-notification daemon](http://www.knopwob.org/dunst/)
 running on [dwm](http://dwm.suckless.org/).
 
+
 ## How?
+
 To start an **et**, just fire a command.
+
 ```bash
 $ et 90 # Reminds you in 90 seconds
 $ et 1:30 # Also reminds you in 90 seconds
@@ -23,6 +28,7 @@ $ et 23:00 "Check rice" # Reminder with a longer text
 
 To get the current status, send a `SIGUSR1`-signal to the process.
 Don't worry, it won't stop.
+
 ```bash
 $ et 120
 Egg timer started!
@@ -39,10 +45,21 @@ the `et-status.sh`-script.
 Perhaps you want to set up some keybindings in your WM for a
 flawless experience.
 
-## Build?
-Just run `make` and you've got a binary. If you're on
-[NixOS](https://nixos.org/) try `nix-build` or install the `et` package from
-the [nixpkgs](https://github.com/NixOS/nixpkgs).
 
-## License?
-🐃 GNU General Public License, Version 3
+## Build?
+
+### NixOS / Nix
+
+If you're using [Nix](https://nixos.org/nix/) or [NixOS](https://nixos.org/)
+try `nix-build` or just install the `et` package from the
+[nixpkgs](https://github.com/NixOS/nixpkgs).
+
+
+### Debian / Ubuntu
+
+```bash
+sudo apt-get update
+sudo apt-get install build-essential libnotify-dev
+
+make
+```
