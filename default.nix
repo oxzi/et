@@ -5,8 +5,8 @@ stdenv.mkDerivation rec {
 
   src = lib.cleanSource ./.;
 
-  buildInputs = [ libnotify gdk_pixbuf ];
-  nativeBuildInputs = [ pkgconfig ];
+  buildInputs = [ libnotify gdk-pixbuf ];
+  nativeBuildInputs = [ pkg-config ];
 
   installPhase = ''
     mkdir -p $out/bin
