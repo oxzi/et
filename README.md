@@ -48,18 +48,25 @@ flawless experience.
 
 ## Build?
 
+### Debian / Ubuntu
+
+```bash
+sudo apt-get update
+sudo apt-get install build-essential libnotify-dev
+
+make
+```
+
 ### NixOS / Nix
 
 If you're using [Nix](https://nixos.org/nix/) or [NixOS](https://nixos.org/)
 try `nix-build` or just install the `et` package from the
 [nixpkgs](https://github.com/NixOS/nixpkgs).
 
+### OpenBSD
 
-### Debian / Ubuntu
-
-```bash
-sudo apt-get update
-sudo apt-get install build-essential libnotify-dev
+```
+doas pkg_add libnotify
 
 make
 ```

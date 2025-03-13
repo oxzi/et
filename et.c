@@ -71,7 +71,7 @@ void create_text_timestamp(char* msg, size_t msg_size, time_t sec) {
   struct tm *time;
   char *msg_format;
 
-  if (!(msg_format = malloc(64))) 
+  if (!(msg_format = malloc(64)))
     DIE("Could not malloc.\n");
 
   /* Select a fitting strftime-format-string based on sec's value. */
@@ -92,7 +92,7 @@ void create_text_timestamp(char* msg, size_t msg_size, time_t sec) {
 }
 
 /* Function to be called from within the main-loop. */
-void status_request_worker() {
+void status_request_worker(void) {
   char *msg;
 
   if (!(msg = malloc(96)))
@@ -131,6 +131,14 @@ void print_help(char *et_name, int exit_status) {
 int main(int argc, char *argv[]) {
   unsigned int sec;
   char *start_msg, *start_msg_time;
+
+#ifdef __OpenBSD__
+  /* This pledge promise is next to useless.
+   * Internally, libnotify executes the dbus-launch binary..
+   */
+  if (pledge("stdio rpath cpath inet unix proc exec", NULL) == -1)
+    DIE("pledge\n");
+#endif /* __OpenBSD__ */
 
   if (!notify_init("et") || !notify_is_initted())
     DIE("Could not initialize libnotify.\n");
