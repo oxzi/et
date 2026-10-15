@@ -4,29 +4,31 @@ on: [push, pull_request]
 
 jobs:
   build_nix_ubuntu:
-    name: Build with Nix on an Ubuntu
+    name: Nix on Ubuntu
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: cachix/install-nix-action@v31
       with:
         nix_path: nixpkgs=channel:nixos-unstable
     - run: nix-build
+    - run: ./result/bin/et 3 "testing"
 
   build_nix_macos:
-    name: Build with Nix on a macOS
+    name: Nix on macOS
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: cachix/install-nix-action@v31
       with:
         nix_path: nixpkgs=channel:nixos-unstable
     - run: nix-build
+    - run: ./result/bin/et 3 "testing"
 
   build_ubuntu:
-    name: Build directly on an Ubuntu
+    name: Ubuntu
     runs-on: ubuntu-latest
 
     steps:
@@ -35,3 +37,22 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential libnotify-dev
     - run: make
+    - run: ./et 3 "testing"
+
+  build_openbsd:
+    name: OpenBSD
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+    - name: Build and test in an OpenBSD VM
+      uses: vmactions/openbsd-vm@v1
+      with:
+        cache-after-prepare: true
+        prepare: |
+          set -e
+          pkg_add -I libnotify
+        run: |
+          set -e
+          make
+          ./et 3 "testing"

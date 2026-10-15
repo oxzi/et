@@ -1,4 +1,4 @@
-#include <inttypes.h>
+#include <err.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -8,12 +8,6 @@
 #include <unistd.h>
 #include <libnotify/notify.h>
 #include <sys/time.h>
-
-/* Macro to "use" unused parameters */
-#define UNUSED(x) (void)(x)
-
-/* There's too much failure ;_; */
-#define DIE(x) { printf(x); exit(EXIT_FAILURE); }
 
 /* Flag variables */
 volatile bool timer_state  = true;
@@ -28,20 +22,20 @@ char *instance_name;
 
 /* Signal handler-functions */
 void time_over_handler(int sig) {
+  (void) (sig);
   timer_state = false;
-  UNUSED(sig);
 }
 
 void status_request_handler(int sig) {
   status_state = true;
   /* Let the signal handler re-register itself. */
   if (signal(sig, status_request_handler) == SIG_ERR)
-    DIE("Could not re-register signal handler.\n");
+    err(EXIT_FAILURE, "signal");
 }
 
 void kill_handler(int sig) {
+  (void) (sig);
   kill_state = true;
-  UNUSED(sig);
 }
 
 /* Function to create an itimerval for sec seconds. */
@@ -57,11 +51,14 @@ struct itimerval create_itimerval(unsigned int sec) {
 /* Function to show a notification. */
 void show_notification(char *msg, NotifyUrgency urgency) {
   NotifyNotification *noti;
+  GError *err = NULL;
 
   noti = notify_notification_new(instance_name, msg, NULL);
   notify_notification_set_urgency(noti, urgency);
-  if (!notify_notification_show(noti, NULL))
-    printf("Failed to show a NotifyNotification!\n");
+  if (!notify_notification_show(noti, &err)) {
+    warnx("notify_notification_show: %s", err ? err->message : "unknown error");
+    g_clear_error(&err);
+  }
 
   g_object_unref(G_OBJECT(noti));
 }
@@ -72,21 +69,24 @@ void create_text_timestamp(char* msg, size_t msg_size, time_t sec) {
   char *msg_format;
 
   if (!(msg_format = malloc(64)))
-    DIE("Could not malloc.\n");
+    err(EXIT_FAILURE, "malloc");
 
   /* Select a fitting strftime-format-string based on sec's value. */
   if (sec >= 60 * 60 * 24)
-    snprintf(msg_format, 64, "Still %%j days and %%T…");
+    (void) snprintf(msg_format, 64, "Still %%j days and %%T…");
   else if (sec >= 60 * 60)
-    snprintf(msg_format, 64, "Still %%T…");
+    (void) snprintf(msg_format, 64, "Still %%T…");
   else if (sec >= 60)
-    snprintf(msg_format, 64, "%%M minutes and %%S seconds remaining");
+    (void) snprintf(msg_format, 64, "%%M minutes and %%S seconds remaining");
   else
-    snprintf(msg_format, 64, "Only %%S seconds remaining");
+    (void) snprintf(msg_format, 64, "Only %%S seconds remaining");
 
   /* Convert sec to a timestamp and write the timestamp into msg. */
-  time = gmtime(&sec);
-  strftime(msg, msg_size, msg_format, time);
+  if (!(time = gmtime(&sec)))
+    err(EXIT_FAILURE, "gmtime");
+
+  if (!strftime(msg, msg_size, msg_format, time))
+    errx(EXIT_FAILURE, "strftime");
 
   free(msg_format);
 }
@@ -96,10 +96,10 @@ void status_request_worker(void) {
   char *msg;
 
   if (!(msg = malloc(96)))
-    DIE("Could not malloc.\n");
+    err(EXIT_FAILURE, "malloc");
 
   if (getitimer(ITIMER_REAL, &timer))
-    DIE("Could not getitimer.\n");
+    err(EXIT_FAILURE, "getitimer");
 
   create_text_timestamp(msg, 96, timer.it_value.tv_sec);
 
@@ -111,7 +111,8 @@ void status_request_worker(void) {
 
 /* Function to parse h:m:s, m:s and s. */
 unsigned int parse_time(char *time_str) {
-  unsigned int vals[3], ret, sum, i;
+  unsigned int vals[3], sum;
+  int ret, i;
 
   ret = sscanf(time_str, "%u:%u:%u", &vals[0], &vals[1], &vals[2]);
   for (i = sum = 0; i < ret; i++)
@@ -137,11 +138,11 @@ int main(int argc, char *argv[]) {
    * Internally, libnotify executes the dbus-launch binary..
    */
   if (pledge("stdio rpath cpath inet unix proc exec", NULL) == -1)
-    DIE("pledge\n");
+    err(EXIT_FAILURE, "pledge");
 #endif /* __OpenBSD__ */
 
   if (!notify_init("et") || !notify_is_initted())
-    DIE("Could not initialize libnotify.\n");
+    errx(EXIT_FAILURE, "initializing libnotify");
 
   if (argc < 2 || argc > 3)
     print_help(argv[0], EXIT_FAILURE);
@@ -157,29 +158,28 @@ int main(int argc, char *argv[]) {
     exit(EXIT_SUCCESS);
 
   if (sec > 60 * 60 * 24 * 365)
-    DIE("Time must be in [0sec, 365days]\n");
+    errx(EXIT_FAILURE, "time must be in [0sec, 365days]");
 
   /* Enable signal handlers */
   if (signal(SIGALRM, time_over_handler)      == SIG_ERR ||
       signal(SIGUSR1, status_request_handler) == SIG_ERR ||
       signal(SIGINT,  kill_handler)           == SIG_ERR ||
       signal(SIGHUP,  kill_handler)           == SIG_ERR)
-    DIE("Could not register signal handlers.\n");
+    err(EXIT_FAILURE, "signal");
 
   if (!(start_msg = malloc(96)) || !(start_msg_time = malloc(110)))
-    DIE("Could not malloc.\n");
+    err(EXIT_FAILURE, "malloc");
 
   /* Start timer */
   timer = create_itimerval(sec);
   if (setitimer(ITIMER_REAL, &timer, NULL))
-    DIE("Could not setitimer.\n");
+    err(EXIT_FAILURE, "setitimer");
 
   create_text_timestamp(start_msg_time, 96, timer.it_value.tv_sec);
   printf("Egg timer started!\nName: %s, PID: %d\n%s\n",
     instance_name, getpid(), start_msg_time);
 
-  strcpy(start_msg, "Timer started\n");
-  strcat(start_msg, start_msg_time);
+  (void) snprintf(start_msg, 96, "Timer started\n%s", start_msg_time);
   show_notification(start_msg, NOTIFY_URGENCY_LOW);
 
   free(start_msg);
@@ -196,7 +196,7 @@ int main(int argc, char *argv[]) {
     }
     if (kill_state) {
       show_notification("Timer was killed!", NOTIFY_URGENCY_NORMAL);
-      DIE("Timer was killed!\n");
+      errx(EXIT_FAILURE, "timer was killed!");
     }
   } while (timer_state);
 
