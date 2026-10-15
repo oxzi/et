@@ -2,5 +2,5 @@
 # Requests the status from each et-process.
 
 pgrep -u "$(whoami)" -x et | while read -r pid; do
-  kill -SIGUSR1 "$pid"
+  kill -USR1 "$pid"
 done
