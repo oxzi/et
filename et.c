@@ -130,6 +130,8 @@ void print_help(char *et_name, int exit_status) {
 }
 
 int main(int argc, char *argv[]) {
+  struct tm end_tm;
+  time_t end_time;
   unsigned int sec;
   char *start_msg, *start_msg_time;
 
@@ -175,9 +177,17 @@ int main(int argc, char *argv[]) {
   if (setitimer(ITIMER_REAL, &timer, NULL))
     err(EXIT_FAILURE, "setitimer");
 
+  /* Calculate when the timer will end */
+  end_time = time(NULL) + sec;
+  end_tm = *localtime(&end_time);
+
   create_text_timestamp(start_msg_time, 96, timer.it_value.tv_sec);
-  printf("Egg timer started!\nName: %s, PID: %d\n%s\n",
-    instance_name, getpid(), start_msg_time);
+  printf("Egg timer started!\n"
+         "Name: %s, Ending at: %02d:%02d:%02d, PID: %d\n%s\n",
+    instance_name,
+    end_tm.tm_hour, end_tm.tm_min, end_tm.tm_sec,
+    getpid(),
+    start_msg_time);
 
   (void) snprintf(start_msg, 96, "Timer started\n%s", start_msg_time);
   show_notification(start_msg, NOTIFY_URGENCY_LOW);
