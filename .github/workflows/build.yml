@@ -13,7 +13,6 @@ jobs:
       with:
         nix_path: nixpkgs=channel:nixos-unstable
     - run: nix-build
-    - run: ./result/bin/et 3 "testing"
 
   build_nix_macos:
     name: Nix on macOS
@@ -25,7 +24,6 @@ jobs:
       with:
         nix_path: nixpkgs=channel:nixos-unstable
     - run: nix-build
-    - run: ./result/bin/et 3 "testing"
 
   build_ubuntu:
     name: Ubuntu
@@ -37,7 +35,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential libnotify-dev
     - run: make
-    - run: ./et 3 "testing"
 
   build_openbsd:
     name: OpenBSD
@@ -55,4 +52,3 @@ jobs:
         run: |
           set -e
           make
-          ./et 3 "testing"

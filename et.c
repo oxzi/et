@@ -136,9 +136,12 @@ int main(int argc, char *argv[]) {
   char *start_msg, *start_msg_time;
 
 #ifdef __OpenBSD__
-  /* This pledge promise is next to useless.
-   * Internally, libnotify executes the dbus-launch binary..
-   */
+  /* libnotify calls dbus-launch and creates temp files. It's something. */
+  if (unveil("/", "rwc") == -1 ||
+      unveil("/usr/local/bin/dbus-launch", "rx") == -1 ||
+      unveil(NULL, NULL) == -1)
+    err(EXIT_FAILURE, "unveil");
+
   if (pledge("stdio rpath cpath inet unix proc exec", NULL) == -1)
     err(EXIT_FAILURE, "pledge");
 #endif /* __OpenBSD__ */
@@ -161,6 +164,15 @@ int main(int argc, char *argv[]) {
 
   if (sec > 60 * 60 * 24 * 365)
     errx(EXIT_FAILURE, "time must be in [0sec, 365days]");
+
+#ifdef __OpenBSD__
+  /* Establish a dbus connection, then drop permissions. */
+  if (!notify_get_server_info(NULL, NULL, NULL, NULL))
+    errx(EXIT_FAILURE, "notify_get_server_info");
+
+  if (pledge("stdio", NULL) == -1)
+    err(EXIT_FAILURE, "pledge");
+#endif /* __OpenBSD__ */
 
   /* Enable signal handlers */
   if (signal(SIGALRM, time_over_handler)      == SIG_ERR ||
