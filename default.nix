@@ -11,6 +11,7 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/bin
     cp et $out/bin
+    cp et-loop.sh $out/bin/et-loop
     cp et-status.sh $out/bin/et-status
   '';
 }
